@@ -1,33 +1,73 @@
 import { motion } from 'framer-motion'
-import rawFlower from '../assets/flower.txt?raw'
 
-function trimLines(lines) {
-  const nonEmpty = lines.filter(l => l.trim().length > 0)
-  if (!nonEmpty.length) return ''
-  const minIndent = Math.min(...nonEmpty.map(l => l.match(/^ */)[0].length))
-  return lines.map(l => l.slice(minIndent)).join('\n').trim()
-}
-
-// File is 1-indexed in the editor; JS array is 0-indexed.
-// Line N in the file = index N-1 in the array.
-const ALL_LINES = rawFlower.split('\n')
-
-const STAGE_ARTS = [
-  trimLines(ALL_LINES.slice(48, 54)), // lines 49–54: stem tip
-  trimLines(ALL_LINES.slice(41, 54)), // lines 42–54: full lower stem
-  trimLines(ALL_LINES.slice(34, 54)), // lines 35–54: leaves appear
-  trimLines(ALL_LINES.slice(25, 54)), // lines 26–54: upper stem + leaves
-  trimLines(ALL_LINES.slice(12, 54)), // lines 13–54: partial flower
-  trimLines(ALL_LINES.slice(1,  54)), // lines  2–54: full bloom
-]
-
-const LABELS = [
-  'Day one.',
-  'Growing.',
-  'Leaves forming.',
-  'Stem strong.',
-  'Blooming.',
-  'Fully grown.',
+const STAGES = [
+  {
+    art: `\
+      |
+      |
+      |`,
+    label: 'Day one.',
+  },
+  {
+    art: `\
+      |
+      |
+     >|
+      |
+      |`,
+    label: 'Growing.',
+  },
+  {
+    art: `\
+     ,@,
+    (@@@)
+      |
+      |
+     >|
+      |
+      |`,
+    label: 'A bud.',
+  },
+  {
+    art: `\
+    ,@@@,
+   (@ @ @)
+    \`@@@'
+      |
+      |
+     >|
+      |
+      |`,
+    label: 'Opening up.',
+  },
+  {
+    art: `\
+   ,@@@@@,
+  (@ @@@ @)
+  |@@ @ @@|
+   \`@@@@@'
+      |
+     >|
+    / | \\
+   /  |  \\
+      |`,
+    label: 'Almost there.',
+  },
+  {
+    art: `\
+  ,@@@@@@@,
+ (@@ ,-. @@)
+ |@( ( * ) )@|
+ (@@ \`-' @@)
+  \\@@@@@@@/
+   \`@@@@@'
+      |
+     >|<
+    / | \\
+   /  |  \\
+      |`,
+    label: 'Full bloom.',
+  },
 ]
 
 function getStage(streak) {
@@ -46,6 +86,7 @@ function getNextMilestone(streak) {
 
 export default function PlantDisplay({ streak }) {
   const stageIndex = getStage(streak)
+  const stage = STAGES[stageIndex]
   const next = getNextMilestone(streak)
 
   return (
@@ -64,27 +105,26 @@ export default function PlantDisplay({ streak }) {
           Your Plant
         </h2>
         <p className="text-sm mt-0.5 opacity-80" style={{ color: 'var(--on-primary)', fontFamily: 'Work Sans, sans-serif' }}>
-          {streak} day streak — {LABELS[stageIndex]}
+          {streak} day streak — {stage.label}
         </p>
       </div>
 
-      <div className="py-8 px-6 flex flex-col items-center overflow-x-auto" style={{ background: 'var(--surface)' }}>
+      <div className="py-10 px-6 flex flex-col items-center" style={{ background: 'var(--surface)' }}>
         <pre
           className="select-none"
           style={{
             fontFamily: '"Courier New", Courier, monospace',
-            fontSize: '0.8rem',
-            lineHeight: '1.5',
+            fontSize: '1rem',
+            lineHeight: '1.6',
             color: 'var(--primary)',
-            textAlign: 'left',
           }}
         >
-          {STAGE_ARTS[stageIndex]}
+          {stage.art}
         </pre>
 
         {next && (
           <p
-            className="mt-6 text-xs"
+            className="mt-8 text-xs"
             style={{ color: 'var(--text-faint)', fontFamily: 'Work Sans, sans-serif' }}
           >
             {next - streak} more day{next - streak !== 1 ? 's' : ''} until next growth
