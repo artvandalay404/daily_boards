@@ -5,10 +5,9 @@ import Greeting from './components/Greeting'
 import StreakBadge from './components/StreakBadge'
 import CardDisplay from './components/CardDisplay'
 import RevealButton from './components/RevealButton'
-import FunFacts from './components/FunFacts'
+import PlantDisplay from './components/PlantDisplay'
 import { useDailyCard } from './hooks/useDailyCard'
 import { useStreak } from './hooks/useStreak'
-import { useFunFacts } from './hooks/useFunFacts'
 import { fetchClue } from './utils/anthropic'
 
 const THEMES = [
@@ -55,7 +54,6 @@ python scripts/extract_cards.py \\
 export default function App() {
   const { card, loading, error } = useDailyCard()
   const streak = useStreak()
-  const { text: factsText, loading: factsLoading, error: factsError, fetch: fetchFacts } = useFunFacts()
   const [revealed, setRevealed] = useState(false)
   const [clue, setClue] = useState(null)
   const [clueLoading, setClueLoading] = useState(false)
@@ -75,7 +73,6 @@ export default function App() {
 
   function handleReveal() {
     setRevealed(true)
-    fetchFacts(card)
     confetti({
       particleCount: 110,
       spread: 75,
@@ -212,7 +209,7 @@ export default function App() {
           )}
         </motion.div>
 
-        <FunFacts text={factsText} loading={factsLoading} error={factsError} />
+        <PlantDisplay streak={streak} />
 
         <p className="text-center text-xs mt-8 mb-4" style={{ color: 'var(--text-faint)' }}>
           you got this :)) -sn
