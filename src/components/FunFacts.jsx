@@ -30,58 +30,35 @@ function LoadingSkeleton() {
 }
 
 export default function FunFacts({ text, loading, error }) {
-  if (!loading && !text && !error) return null
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="rounded-3xl overflow-hidden mb-6"
-      style={{ background: 'var(--surface-low)' }}
-    >
-      {/* Header */}
-      <div
-        className="px-6 py-4"
-        style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dim) 100%)' }}
-      >
-        <h2 className="font-extrabold text-lg" style={{ color: 'var(--on-primary)' }}>
-          Claude's Take
-        </h2>
-        <p className="text-sm mt-0.5 opacity-80" style={{ color: 'var(--on-primary)', fontFamily: 'Work Sans, sans-serif' }}>
-          Pearls, mnemonics & a little magic
+    <div>
+      {error ? (
+        <p className="text-sm" style={{ color: '#b02500' }}>
+          Couldn't load: {error}. Check your API key.
         </p>
-      </div>
-
-      <div className="p-6" style={{ background: 'var(--surface)' }}>
-        {error ? (
-          <p className="text-sm" style={{ color: '#b02500' }}>
-            Couldn't load fun facts: {error}. Check your API key.
-          </p>
-        ) : loading && !text ? (
-          <LoadingSkeleton />
-        ) : (
-          <div className="prose-custom text-sm leading-relaxed" style={{ color: 'var(--text)' }}>
-            <ReactMarkdown
-              components={{
-                a: ({ href, children }) => (
-                  <a href={href} target="_blank" rel="noopener noreferrer">
-                    {children}
-                  </a>
-                ),
-              }}
-            >
-              {text}
-            </ReactMarkdown>
-            {loading && (
-              <span
-                className="inline-block w-1.5 h-4 rounded-sm animate-pulse ml-0.5 align-middle"
-                style={{ background: 'var(--primary)' }}
-              />
-            )}
-          </div>
-        )}
-      </div>
-    </motion.div>
+      ) : loading && !text ? (
+        <LoadingSkeleton />
+      ) : (
+        <div className="prose-custom text-sm leading-relaxed" style={{ color: 'var(--text)' }}>
+          <ReactMarkdown
+            components={{
+              a: ({ href, children }) => (
+                <a href={href} target="_blank" rel="noopener noreferrer">
+                  {children}
+                </a>
+              ),
+            }}
+          >
+            {text}
+          </ReactMarkdown>
+          {loading && (
+            <span
+              className="inline-block w-1.5 h-4 rounded-sm animate-pulse ml-0.5 align-middle"
+              style={{ background: 'var(--primary)' }}
+            />
+          )}
+        </div>
+      )}
+    </div>
   )
 }

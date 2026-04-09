@@ -1,92 +1,25 @@
 import { motion } from 'framer-motion'
+import RoseFlower from './RoseFlower'
 
-const STAGES = [
-  {
-    art: `\
-      |
-      |
-      |`,
-    label: 'Day one.',
-  },
-  {
-    art: `\
-      |
-      |
-     >|
-      |
-      |`,
-    label: 'Growing.',
-  },
-  {
-    art: `\
-     ,@,
-    (@@@)
-      |
-      |
-     >|
-      |
-      |`,
-    label: 'A bud.',
-  },
-  {
-    art: `\
-    ,@@@,
-   (@ @ @)
-    \`@@@'
-      |
-      |
-     >|
-      |
-      |`,
-    label: 'Opening up.',
-  },
-  {
-    art: `\
-   ,@@@@@,
-  (@ @@@ @)
-  |@@ @ @@|
-   \`@@@@@'
-      |
-     >|
-    / | \\
-   /  |  \\
-      |`,
-    label: 'Almost there.',
-  },
-  {
-    art: `\
-  ,@@@@@@@,
- (@@ ,-. @@)
- |@( ( * ) )@|
- (@@ \`-' @@)
-  \\@@@@@@@/
-   \`@@@@@'
-      |
-     >|<
-    / | \\
-   /  |  \\
-      |`,
-    label: 'Full bloom.',
-  },
-]
-
+// Maps streak → RoseFlower stage index (0–6)
+// Stages: Seed, Sprout, Stem & thorns, Leaves, Bud, Opening, Full bloom
 function getStage(streak) {
-  if (streak >= 35) return 5
-  if (streak >= 20) return 4
-  if (streak >= 10) return 3
-  if (streak >= 5)  return 2
+  if (streak >= 35) return 6
+  if (streak >= 20) return 5
+  if (streak >= 10) return 4
+  if (streak >= 5)  return 3
+  if (streak >= 3)  return 2
   if (streak >= 2)  return 1
   return 0
 }
 
 function getNextMilestone(streak) {
-  const milestones = [2, 5, 10, 20, 35]
+  const milestones = [2, 3, 5, 10, 20, 35]
   return milestones.find(m => m > streak) ?? null
 }
 
 export default function PlantDisplay({ streak }) {
   const stageIndex = getStage(streak)
-  const stage = STAGES[stageIndex]
   const next = getNextMilestone(streak)
 
   return (
@@ -105,26 +38,22 @@ export default function PlantDisplay({ streak }) {
           Your Plant
         </h2>
         <p className="text-sm mt-0.5 opacity-80" style={{ color: 'var(--on-primary)', fontFamily: 'Work Sans, sans-serif' }}>
-          {streak} day streak — {stage.label}
+          {streak} day streak
         </p>
       </div>
 
-      <div className="py-10 px-6 flex flex-col items-center" style={{ background: 'var(--surface)' }}>
-        <pre
-          className="select-none"
-          style={{
-            fontFamily: '"Courier New", Courier, monospace',
-            fontSize: '1rem',
-            lineHeight: '1.6',
-            color: 'var(--primary)',
-          }}
-        >
-          {stage.art}
-        </pre>
+      <div className="py-4 px-4 sm:py-6 sm:px-6 flex flex-col items-center" style={{ background: 'var(--surface)' }}>
+        <RoseFlower
+          key={stageIndex}
+          initialStage={stageIndex}
+          showControls={false}
+          autoPlay={false}
+          className="w-full"
+        />
 
         {next && (
           <p
-            className="mt-8 text-xs"
+            className="mt-4 text-xs"
             style={{ color: 'var(--text-faint)', fontFamily: 'Work Sans, sans-serif' }}
           >
             {next - streak} more day{next - streak !== 1 ? 's' : ''} until next growth

@@ -6,8 +6,10 @@ import StreakBadge from './components/StreakBadge'
 import CardDisplay from './components/CardDisplay'
 import RevealButton from './components/RevealButton'
 import PlantDisplay from './components/PlantDisplay'
+import FunFacts from './components/FunFacts'
 import { useDailyCard } from './hooks/useDailyCard'
 import { useStreak } from './hooks/useStreak'
+import { useFunFacts } from './hooks/useFunFacts'
 import { fetchClue } from './utils/anthropic'
 
 const THEMES = [
@@ -54,6 +56,8 @@ python scripts/extract_cards.py \\
 export default function App() {
   const { card, loading, error } = useDailyCard()
   const streak = useStreak()
+  const { text: factsText, loading: factsLoading, error: factsError, fetch: fetchFacts } = useFunFacts()
+  const [factsOpen, setFactsOpen] = useState(false)
   const [debugStreak, setDebugStreak] = useState(null)
   const displayStreak = import.meta.env.DEV && debugStreak !== null ? debugStreak : streak
   const [revealed, setRevealed] = useState(false)
@@ -72,6 +76,15 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  function handleToggleFacts() {
+    if (!factsOpen) {
+      setFactsOpen(true)
+      fetchFacts(card)
+    } else {
+      setFactsOpen(false)
+    }
+  }
 
   function handleReveal() {
     setRevealed(true)
@@ -118,11 +131,11 @@ export default function App() {
   if (error) return <SetupScreen />
 
   return (
-    <div className="min-h-screen py-8 px-4 transition-colors duration-300"
+    <div className="min-h-screen py-6 px-4 sm:py-8 transition-colors duration-300"
          style={{ background: 'var(--bg)' }}>
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-5xl mx-auto">
 
-        {/* Theme switcher + debug */}
+        {/* Theme switcher */}
         <div className="flex justify-end items-center gap-3 mb-6">
           <div className="flex items-center gap-1 rounded-full px-2 py-1.5"
                style={{ background: 'var(--surface-low)' }}>
@@ -148,89 +161,134 @@ export default function App() {
         <Greeting />
         <StreakBadge streak={streak} />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <CardDisplay card={card} revealed={revealed} />
+        {/* Two-column layout: stacked on portrait, side-by-side on landscape/tablet */}
+        <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
 
-          {!revealed ? (
-            <>
-              {/* Clue box */}
-              {clue && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl px-5 py-3 mb-3 flex items-start gap-3"
-                  style={{ background: 'var(--secondary-container)' }}
-                >
-                  <p className="text-sm font-medium leading-relaxed" style={{ color: 'var(--secondary)', fontFamily: 'Work Sans, sans-serif' }}>
-                    {clue}
-                  </p>
-                </motion.div>
-              )}
+          {/* Left: card + Claude's thoughts */}
+          <div className="flex-1 min-w-0">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <CardDisplay card={card} revealed={revealed} />
 
-              {/* Clue button */}
-              {!clue && (
+              {!revealed ? (
+                <>
+                  {clue && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-2xl px-5 py-3 mb-3 flex items-start gap-3"
+                      style={{ background: 'var(--secondary-container)' }}
+                    >
+                      <p className="text-sm font-medium leading-relaxed" style={{ color: 'var(--secondary)', fontFamily: 'Work Sans, sans-serif' }}>
+                        {clue}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {!clue && (
+                    <motion.button
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      onClick={handleClue}
+                      disabled={clueLoading}
+                      className="w-full py-3 rounded-full font-semibold text-sm mb-3 transition-opacity"
+                      style={{
+                        background: 'var(--secondary-container)',
+                        color: 'var(--secondary)',
+                        opacity: clueLoading ? 0.6 : 1,
+                        fontFamily: 'Work Sans, sans-serif',
+                      }}
+                    >
+                      {clueLoading ? 'Thinking...' : 'Get a Clue'}
+                    </motion.button>
+                  )}
+
+                  <RevealButton onClick={handleReveal} />
+                </>
+              ) : (
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  onClick={handleClue}
-                  disabled={clueLoading}
-                  className="w-full py-3 rounded-full font-semibold text-sm mb-3 transition-opacity"
+                  onClick={copyCard}
+                  className="w-full py-3 rounded-2xl font-semibold text-sm transition-colors mb-6"
                   style={{
-                    background: 'var(--secondary-container)',
-                    color: 'var(--secondary)',
-                    opacity: clueLoading ? 0.6 : 1,
-                    fontFamily: 'Work Sans, sans-serif',
+                    background: 'var(--surface-low)',
+                    color: 'var(--text-muted)',
+                    border: 'none',
                   }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-mid)'; e.currentTarget.style.color = 'var(--primary)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--surface-low)'; e.currentTarget.style.color = 'var(--text-muted)' }}
                 >
-                  {clueLoading ? 'Thinking...' : 'Get a Clue'}
+                  Copy card to clipboard
                 </motion.button>
               )}
+            </motion.div>
 
-              <RevealButton onClick={handleReveal} />
-            </>
-          ) : (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={copyCard}
-              className="w-full py-3 rounded-2xl font-semibold text-sm transition-colors mb-6"
-              style={{
-                background: 'var(--surface-low)',
-                color: 'var(--text-muted)',
-                border: 'none',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-mid)'; e.currentTarget.style.color = 'var(--primary)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--surface-low)'; e.currentTarget.style.color = 'var(--text-muted)' }}
-            >
-              Copy card to clipboard
-            </motion.button>
-          )}
-        </motion.div>
+            {/* Claude's thoughts dropdown */}
+            <div className="rounded-3xl overflow-hidden mb-6" style={{ background: 'var(--surface-low)' }}>
+              <button
+                onClick={handleToggleFacts}
+                className="w-full px-6 py-4 flex items-center justify-between"
+                style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dim) 100%)' }}
+              >
+                <div className="text-left">
+                  <h2 className="font-extrabold text-lg" style={{ color: 'var(--on-primary)' }}>
+                    Claude's Take
+                  </h2>
+                  <p className="text-sm mt-0.5 opacity-80" style={{ color: 'var(--on-primary)', fontFamily: 'Work Sans, sans-serif' }}>
+                    Pearls, mnemonics & a little magic
+                  </p>
+                </div>
+                <span
+                  className="text-xl transition-transform duration-200"
+                  style={{ color: 'var(--on-primary)', transform: factsOpen ? 'rotate(180deg)' : 'rotate(0deg)', display: 'inline-block' }}
+                >
+                  ▾
+                </span>
+              </button>
 
-        {import.meta.env.DEV && (
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <button
-              onClick={() => setDebugStreak(d => Math.max(1, (d ?? streak) - 1))}
-              className="w-7 h-7 rounded-full font-mono text-sm flex items-center justify-center"
-              style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}
-            >−</button>
-            <span className="text-xs font-mono" style={{ color: 'var(--text-faint)' }}>
-              day {displayStreak}
-            </span>
-            <button
-              onClick={() => setDebugStreak(d => (d ?? streak) + 1)}
-              className="w-7 h-7 rounded-full font-mono text-sm flex items-center justify-center"
-              style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}
-            >+</button>
+              {factsOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="p-6"
+                  style={{ background: 'var(--surface)' }}
+                >
+                  <FunFacts text={factsText} loading={factsLoading} error={factsError} />
+                </motion.div>
+              )}
+            </div>
           </div>
-        )}
-        <PlantDisplay streak={displayStreak} />
 
-        <p className="text-center text-xs mt-8 mb-4" style={{ color: 'var(--text-faint)' }}>
+          {/* Right: plant */}
+          <div className="w-full sm:w-64 flex-shrink-0">
+            {import.meta.env.DEV && (
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <button
+                  onClick={() => setDebugStreak(d => Math.max(1, (d ?? streak) - 1))}
+                  className="w-7 h-7 rounded-full font-mono text-sm flex items-center justify-center"
+                  style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}
+                >−</button>
+                <span className="text-xs font-mono" style={{ color: 'var(--text-faint)' }}>
+                  day {displayStreak}
+                </span>
+                <button
+                  onClick={() => setDebugStreak(d => (d ?? streak) + 1)}
+                  className="w-7 h-7 rounded-full font-mono text-sm flex items-center justify-center"
+                  style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}
+                >+</button>
+              </div>
+            )}
+            <PlantDisplay streak={displayStreak} />
+          </div>
+
+        </div>
+
+        <p className="text-center text-xs mt-4 mb-4" style={{ color: 'var(--text-faint)' }}>
           you got this :)) -sn
         </p>
       </div>

@@ -39,7 +39,7 @@ export default function CardDisplay({ card, revealed }) {
       <div className="p-6" style={{ background: 'var(--surface)' }}>
         <SectionLabel color="primary">Question</SectionLabel>
         <div
-          className="card-content text-base leading-relaxed"
+          className="card-content text-base leading-relaxed overflow-x-auto"
           style={{ color: 'var(--text)', fontFamily: 'Work Sans, sans-serif' }}
           dangerouslySetInnerHTML={{ __html: sanitizeCardHtml(card.front, !revealed) }}
         />
@@ -56,7 +56,7 @@ export default function CardDisplay({ card, revealed }) {
             style={{ background: 'var(--surface)' }}
           >
             <div
-              className="card-content text-sm leading-relaxed pt-4"
+              className="card-content text-sm leading-relaxed pt-4 overflow-x-auto"
               style={{
                 color: 'var(--text-muted)',
                 fontFamily: 'Work Sans, sans-serif',
