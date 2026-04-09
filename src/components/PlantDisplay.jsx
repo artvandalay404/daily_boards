@@ -1,81 +1,33 @@
 import { motion } from 'framer-motion'
 import rawFlower from '../assets/flower.txt?raw'
 
-function trimArt(raw) {
-  const lines = raw.split('\n')
+function trimLines(lines) {
   const nonEmpty = lines.filter(l => l.trim().length > 0)
-  if (!nonEmpty.length) return raw.trim()
+  if (!nonEmpty.length) return ''
   const minIndent = Math.min(...nonEmpty.map(l => l.match(/^ */)[0].length))
   return lines.map(l => l.slice(minIndent)).join('\n').trim()
 }
 
-const fullFlower = trimArt(rawFlower)
+// File is 1-indexed in the editor; JS array is 0-indexed.
+// Line N in the file = index N-1 in the array.
+const ALL_LINES = rawFlower.split('\n')
 
-const STAGES = [
-  {
-    art: `\
-    .
-    |
-  __|__
- |     |
- |_____|`,
-    label: 'Day one.',
-  },
-  {
-    art: `\
-  \\   /
-   \\ /
-    .
-    |
-  __|__
- |     |
- |_____|`,
-    label: 'First leaves.',
-  },
-  {
-    art: `\
-   ,-.
-  (   )
-   '-'
-    |
-    |
-  __|__
- |     |
- |_____|`,
-    label: 'A bud.',
-  },
-  {
-    art: `\
-   ,--,
-  (    )
-  (    )
-   '--'
-    |
-    |
-  __|___
- |      |
- |______|`,
-    label: 'Opening up.',
-  },
-  {
-    art: `\
-    ,---.
-   (     )
-   ( o o )
-   (     )
-    '---'
-      |
-  \\   |   /
-   \\  |  /
-    __|__
-   |     |
-   |_____|`,
-    label: 'Looking healthy.',
-  },
-  {
-    art: fullFlower,
-    label: 'Fully grown.',
-  },
+const STAGE_ARTS = [
+  trimLines(ALL_LINES.slice(48, 54)), // lines 49–54: stem tip
+  trimLines(ALL_LINES.slice(41, 54)), // lines 42–54: full lower stem
+  trimLines(ALL_LINES.slice(34, 54)), // lines 35–54: leaves appear
+  trimLines(ALL_LINES.slice(25, 54)), // lines 26–54: upper stem + leaves
+  trimLines(ALL_LINES.slice(12, 54)), // lines 13–54: partial flower
+  trimLines(ALL_LINES.slice(1,  54)), // lines  2–54: full bloom
+]
+
+const LABELS = [
+  'Day one.',
+  'Growing.',
+  'Leaves forming.',
+  'Stem strong.',
+  'Blooming.',
+  'Fully grown.',
 ]
 
 function getStage(streak) {
@@ -94,7 +46,6 @@ function getNextMilestone(streak) {
 
 export default function PlantDisplay({ streak }) {
   const stageIndex = getStage(streak)
-  const stage = STAGES[stageIndex]
   const next = getNextMilestone(streak)
 
   return (
@@ -113,7 +64,7 @@ export default function PlantDisplay({ streak }) {
           Your Plant
         </h2>
         <p className="text-sm mt-0.5 opacity-80" style={{ color: 'var(--on-primary)', fontFamily: 'Work Sans, sans-serif' }}>
-          {streak} day streak — {stage.label}
+          {streak} day streak — {LABELS[stageIndex]}
         </p>
       </div>
 
@@ -128,7 +79,7 @@ export default function PlantDisplay({ streak }) {
             textAlign: 'left',
           }}
         >
-          {stage.art}
+          {STAGE_ARTS[stageIndex]}
         </pre>
 
         {next && (
