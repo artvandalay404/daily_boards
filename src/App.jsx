@@ -53,10 +53,9 @@ python scripts/extract_cards.py \\
 }
 
 export default function App() {
-  const [debugOffset, setDebugOffset] = useState(0)
-  const { card, loading, error } = useDailyCard(debugOffset)
+  const { card, loading, error } = useDailyCard()
   const streak = useStreak()
-  const { text: factsText, loading: factsLoading, error: factsError, fetch: fetchFacts, reset: resetFacts } = useFunFacts()
+  const { text: factsText, loading: factsLoading, error: factsError, fetch: fetchFacts } = useFunFacts()
   const [revealed, setRevealed] = useState(false)
   const [clue, setClue] = useState(null)
   const [clueLoading, setClueLoading] = useState(false)
@@ -145,19 +144,6 @@ export default function App() {
               </button>
             ))}
           </div>
-          <button
-            onClick={() => {
-              setDebugOffset(o => o + 1)
-              setRevealed(false)
-              setClue(null)
-              resetFacts()
-            }}
-            className="text-xs px-3 py-1.5 rounded-full font-mono"
-            style={{ background: 'var(--surface-mid)', color: 'var(--text-faint)' }}
-            title="Debug: next card"
-          >
-            next card
-          </button>
         </div>
 
         <Greeting />
