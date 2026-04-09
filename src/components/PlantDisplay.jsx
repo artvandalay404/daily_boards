@@ -1,77 +1,79 @@
 import { motion } from 'framer-motion'
+import rawFlower from '../assets/flower.txt?raw'
+
+function trimArt(raw) {
+  const lines = raw.split('\n')
+  const nonEmpty = lines.filter(l => l.trim().length > 0)
+  if (!nonEmpty.length) return raw.trim()
+  const minIndent = Math.min(...nonEmpty.map(l => l.match(/^ */)[0].length))
+  return lines.map(l => l.slice(minIndent)).join('\n').trim()
+}
+
+const fullFlower = trimArt(rawFlower)
 
 const STAGES = [
   {
     art: `\
-      ,
-      |
-  ____|____
- |         |
- |_________|`,
-    label: 'Day one. A seed.',
+    .
+    |
+  __|__
+ |     |
+ |_____|`,
+    label: 'Day one.',
   },
   {
     art: `\
-    \\ , /
-     \\|/
-      |
-  ____|____
- |         |
- |_________|`,
+  \\   /
+   \\ /
+    .
+    |
+  __|__
+ |     |
+ |_____|`,
     label: 'First leaves.',
   },
   {
     art: `\
-     (-)
-      |
-      |
-  ____|____
- |         |
- |_________|`,
+   ,-.
+  (   )
+   '-'
+    |
+    |
+  __|__
+ |     |
+ |_____|`,
     label: 'A bud.',
   },
   {
     art: `\
-    ,--,
-   ( ** )
-    '--'
-      |
-      |
-  ____|____
- |         |
- |_________|`,
+   ,--,
+  (    )
+  (    )
+   '--'
+    |
+    |
+  __|___
+ |      |
+ |______|`,
     label: 'Opening up.',
   },
   {
     art: `\
-    ,--.
-   / ** \\
-  | *  * |
-   \\ ** /
-    '--'
+    ,---.
+   (     )
+   ( o o )
+   (     )
+    '---'
       |
-  (   |   )
-      |
-  ____|____
- |         |
- |_________|`,
+  \\   |   /
+   \\  |  /
+    __|__
+   |     |
+   |_____|`,
     label: 'Looking healthy.',
   },
   {
-    art: `\
-    ,---.
-   / *** \\
-  | * O * |
-  | ***** |
-   \\ *** /
-    '---'
-      |
-  (   |   )
-  (   |   )
-      |
-  ____|____
- |         |
- |_________|`,
+    art: fullFlower,
     label: 'Fully grown.',
   },
 ]
@@ -115,14 +117,15 @@ export default function PlantDisplay({ streak }) {
         </p>
       </div>
 
-      <div className="py-8 px-6 flex flex-col items-center" style={{ background: 'var(--surface)' }}>
+      <div className="py-8 px-6 flex flex-col items-center overflow-x-auto" style={{ background: 'var(--surface)' }}>
         <pre
-          className="text-center select-none"
+          className="select-none"
           style={{
-            fontFamily: 'monospace',
-            fontSize: '1rem',
-            lineHeight: '1.6',
+            fontFamily: '"Courier New", Courier, monospace',
+            fontSize: '0.8rem',
+            lineHeight: '1.5',
             color: 'var(--primary)',
+            textAlign: 'left',
           }}
         >
           {stage.art}
