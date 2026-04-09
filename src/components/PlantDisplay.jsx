@@ -2,96 +2,76 @@ import { motion } from 'framer-motion'
 
 const STAGES = [
   {
-    // Day 1 — seed just cracked open
     art: `\
-        ●
-        |
-     ●──┴──●
-     |     |
-     ●─────●     `,
-    label: 'A seedling. Day one.',
+      ,
+      |
+  ____|____
+ |         |
+ |_________|`,
+    label: 'Day one. A seed.',
   },
   {
-    // Day 2–4 — two leaves unfurling
     art: `\
-      ●   ●
-       \\ /
-     ●──┴──●
-     ●  |  ●
-     ●──┴──●
-        |
-     ●─────●
-     |     |
-     ●─────●     `,
+    \\ , /
+     \\|/
+      |
+  ____|____
+ |         |
+ |_________|`,
     label: 'First leaves.',
   },
   {
-    // Day 5–9 — small flower bud
     art: `\
-       ●●●
-      ●●●●●
-      ●● ●●
-      ●●●●●
-       ●●●
-        |
-      ●   ●
-     ●──┴──●
-     ●     ●
-     ●─────●     `,
-    label: 'Getting somewhere.',
+     (-)
+      |
+      |
+  ____|____
+ |         |
+ |_________|`,
+    label: 'A bud.',
   },
   {
-    // Day 10–19 — open flower, 5 petals
     art: `\
-    ●  ●  ●
-   ●●●●●●●●●
-   ●●●● ●●●●
-  ●●●●●●●●●●●
-   ●●●● ●●●●
-   ●●●●●●●●●
-    ●  ●  ●
-        |
-      ●   ●
-    ●───┴───●
-    ●       ●
-    ●───────●    `,
+    ,--,
+   ( ** )
+    '--'
+      |
+      |
+  ____|____
+ |         |
+ |_________|`,
+    label: 'Opening up.',
+  },
+  {
+    art: `\
+    ,--.
+   / ** \\
+  | *  * |
+   \\ ** /
+    '--'
+      |
+  (   |   )
+      |
+  ____|____
+ |         |
+ |_________|`,
     label: 'Looking healthy.',
   },
   {
-    // Day 20–34 — fuller flower, leaves on stem
     art: `\
-   ●  ●●  ●
-  ●●●●●●●●●●
-  ●●●●  ●●●●
- ●●●●●●●●●●●●
-  ●●●●  ●●●●
-  ●●●●●●●●●●
-   ●  ●●  ●
-     ● | ●
-    ●  |  ●
-       |
-    ●─────●
-    ●     ●
-    ●─────●     `,
-    label: 'Thriving.',
-  },
-  {
-    // Day 35+ — full bloom, layered petals, tall stem
-    art: `\
-  ●   ●●●   ●
- ●●●●●●●●●●●●●
-●●●●●●●●●●●●●●●
-●●●●●●   ●●●●●●
-●●●●●●●●●●●●●●●
- ●●●●●●●●●●●●●
-  ●   ●●●   ●
-      ● ●
-    ●  |  ●
-   ●   |   ●
-       |
-  ●─────────●
-  ●         ●
-  ●─────────●   `,
+    ,---.
+   / *** \\
+  | * O * |
+  | ***** |
+   \\ *** /
+    '---'
+      |
+  (   |   )
+  (   |   )
+      |
+  ____|____
+ |         |
+ |_________|`,
     label: 'Fully grown.',
   },
 ]
@@ -106,10 +86,8 @@ function getStage(streak) {
 }
 
 function getNextMilestone(streak) {
-  if (streak >= 35) return null
   const milestones = [2, 5, 10, 20, 35]
-  const next = milestones.find(m => m > streak)
-  return next
+  return milestones.find(m => m > streak) ?? null
 }
 
 export default function PlantDisplay({ streak }) {
@@ -137,14 +115,14 @@ export default function PlantDisplay({ streak }) {
         </p>
       </div>
 
-      <div className="p-6 flex flex-col items-center" style={{ background: 'var(--surface)' }}>
+      <div className="py-8 px-6 flex flex-col items-center" style={{ background: 'var(--surface)' }}>
         <pre
-          className="text-center leading-relaxed select-none"
+          className="text-center select-none"
           style={{
             fontFamily: 'monospace',
-            fontSize: '0.85rem',
+            fontSize: '1rem',
+            lineHeight: '1.6',
             color: 'var(--primary)',
-            lineHeight: '1.4',
           }}
         >
           {stage.art}
@@ -152,7 +130,7 @@ export default function PlantDisplay({ streak }) {
 
         {next && (
           <p
-            className="mt-6 text-xs text-center"
+            className="mt-6 text-xs"
             style={{ color: 'var(--text-faint)', fontFamily: 'Work Sans, sans-serif' }}
           >
             {next - streak} more day{next - streak !== 1 ? 's' : ''} until next growth
