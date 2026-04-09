@@ -1,33 +1,27 @@
 import { useState, useEffect } from 'react'
-import { getTodaysCard } from '../utils/cardSelector'
 
 export function useDailyCard(offset = 0) {
-  const [allCards, setAllCards] = useState(null)
   const [card, setCard] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetch('/cards.json')
+    setLoading(true)
+    fetch(`/api/card?offset=${offset}`)
       .then((res) => {
-        if (!res.ok) throw new Error('cards.json not found')
+        if (!res.ok) throw new Error('Failed to load card')
         return res.json()
       })
-      .then((cards) => {
-        if (!cards.length) throw new Error('No cards found')
-        setAllCards(cards)
-        setCard(getTodaysCard(cards, offset))
+      .then(({ card, error }) => {
+        if (error) throw new Error(error)
+        setCard(card)
         setLoading(false)
       })
       .catch((err) => {
         setError(err.message)
         setLoading(false)
       })
-  }, [])
-
-  useEffect(() => {
-    if (allCards) setCard(getTodaysCard(allCards, offset))
-  }, [offset, allCards])
+  }, [offset])
 
   return { card, loading, error }
 }
