@@ -54,6 +54,8 @@ python scripts/extract_cards.py \\
 export default function App() {
   const { card, loading, error } = useDailyCard()
   const streak = useStreak()
+  const [debugStreak, setDebugStreak] = useState(null)
+  const displayStreak = import.meta.env.DEV && debugStreak !== null ? debugStreak : streak
   const [revealed, setRevealed] = useState(false)
   const [clue, setClue] = useState(null)
   const [clueLoading, setClueLoading] = useState(false)
@@ -209,7 +211,24 @@ export default function App() {
           )}
         </motion.div>
 
-        <PlantDisplay streak={streak} />
+        {import.meta.env.DEV && (
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <button
+              onClick={() => setDebugStreak(d => Math.max(1, (d ?? streak) - 1))}
+              className="w-7 h-7 rounded-full font-mono text-sm flex items-center justify-center"
+              style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}
+            >−</button>
+            <span className="text-xs font-mono" style={{ color: 'var(--text-faint)' }}>
+              day {displayStreak}
+            </span>
+            <button
+              onClick={() => setDebugStreak(d => (d ?? streak) + 1)}
+              className="w-7 h-7 rounded-full font-mono text-sm flex items-center justify-center"
+              style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}
+            >+</button>
+          </div>
+        )}
+        <PlantDisplay streak={displayStreak} />
 
         <p className="text-center text-xs mt-8 mb-4" style={{ color: 'var(--text-faint)' }}>
           you got this :)) -sn

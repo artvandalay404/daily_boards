@@ -2,64 +2,96 @@ import { motion } from 'framer-motion'
 
 const STAGES = [
   {
-    // Day 1 — seedling
-    art: `
-    ,
-    ;
-  [___]`,
+    // Day 1 — seed just cracked open
+    art: `\
+        ●
+        |
+     ●──┴──●
+     |     |
+     ●─────●     `,
     label: 'A seedling. Day one.',
   },
   {
-    // Day 2–4 — first leaves
-    art: `
-  \\   /
-   \\ /
-    ;
-  [___]`,
+    // Day 2–4 — two leaves unfurling
+    art: `\
+      ●   ●
+       \\ /
+     ●──┴──●
+     ●  |  ●
+     ●──┴──●
+        |
+     ●─────●
+     |     |
+     ●─────●     `,
     label: 'First leaves.',
   },
   {
-    // Day 5–9 — small plant
-    art: `
-  \\ | /
-  -\\;/-
-    |
-  [_____]`,
+    // Day 5–9 — small flower bud
+    art: `\
+       ●●●
+      ●●●●●
+      ●● ●●
+      ●●●●●
+       ●●●
+        |
+      ●   ●
+     ●──┴──●
+     ●     ●
+     ●─────●     `,
     label: 'Getting somewhere.',
   },
   {
-    // Day 10–19 — branching out
-    art: `
-  \\ \\|/ /
-   \\\\|//
-    \\|/
-     |
-  [_______]`,
+    // Day 10–19 — open flower, 5 petals
+    art: `\
+    ●  ●  ●
+   ●●●●●●●●●
+   ●●●● ●●●●
+  ●●●●●●●●●●●
+   ●●●● ●●●●
+   ●●●●●●●●●
+    ●  ●  ●
+        |
+      ●   ●
+    ●───┴───●
+    ●       ●
+    ●───────●    `,
     label: 'Looking healthy.',
   },
   {
-    // Day 20–34 — tall plant
-    art: `
-   (   )
-  ( ( ) )
-  (  |  )
-   \\ | /
-    \\|/
-     |
-  [_________]`,
+    // Day 20–34 — fuller flower, leaves on stem
+    art: `\
+   ●  ●●  ●
+  ●●●●●●●●●●
+  ●●●●  ●●●●
+ ●●●●●●●●●●●●
+  ●●●●  ●●●●
+  ●●●●●●●●●●
+   ●  ●●  ●
+     ● | ●
+    ●  |  ●
+       |
+    ●─────●
+    ●     ●
+    ●─────●     `,
     label: 'Thriving.',
   },
   {
-    // Day 35+ — full tree
-    art: `
-    (   )
-  ((     ))
- (( (   ) ))
-  ((  | ) )
-    \\\\|//
-     \\|/
-      |
-  [___________]`,
+    // Day 35+ — full bloom, layered petals, tall stem
+    art: `\
+  ●   ●●●   ●
+ ●●●●●●●●●●●●●
+●●●●●●●●●●●●●●●
+●●●●●●   ●●●●●●
+●●●●●●●●●●●●●●●
+ ●●●●●●●●●●●●●
+  ●   ●●●   ●
+      ● ●
+    ●  |  ●
+   ●   |   ●
+       |
+  ●─────────●
+  ●         ●
+  ●─────────●   `,
     label: 'Fully grown.',
   },
 ]
@@ -110,7 +142,7 @@ export default function PlantDisplay({ streak }) {
           className="text-center leading-relaxed select-none"
           style={{
             fontFamily: 'monospace',
-            fontSize: '1.1rem',
+            fontSize: '0.85rem',
             color: 'var(--primary)',
             lineHeight: '1.4',
           }}
