@@ -54,9 +54,10 @@ python scripts/extract_cards.py \\
 }
 
 export default function App() {
-  const { card, loading, error } = useDailyCard()
+  const [cardOffset, setCardOffset] = useState(0)
+  const { card, loading, error } = useDailyCard(cardOffset)
   const streak = useStreak()
-  const { text: factsText, loading: factsLoading, error: factsError, fetch: fetchFacts } = useFunFacts()
+  const { text: factsText, loading: factsLoading, error: factsError, fetch: fetchFacts, reset: resetFacts } = useFunFacts()
   const [factsOpen, setFactsOpen] = useState(false)
   const [debugStreak, setDebugStreak] = useState(null)
   const displayStreak = import.meta.env.DEV && debugStreak !== null ? debugStreak : streak
@@ -76,6 +77,14 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  function handleNextCard() {
+    setCardOffset(o => o + 1)
+    setRevealed(false)
+    setClue(null)
+    setFactsOpen(false)
+    resetFacts()
+  }
 
   function handleToggleFacts() {
     if (!factsOpen) {
@@ -166,7 +175,13 @@ export default function App() {
 
           {/* Left: card + Claude's thoughts */}
           <div className="flex-1 min-w-0">
+            {cardOffset > 0 && (
+              <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-faint)', fontFamily: 'Work Sans, sans-serif' }}>
+                Card {cardOffset + 1} today
+              </p>
+            )}
             <motion.div
+              key={cardOffset}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
@@ -209,21 +224,30 @@ export default function App() {
                   <RevealButton onClick={handleReveal} />
                 </>
               ) : (
-                <motion.button
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  onClick={copyCard}
-                  className="w-full py-3 rounded-2xl font-semibold text-sm transition-colors mb-6"
-                  style={{
-                    background: 'var(--surface-low)',
-                    color: 'var(--text-muted)',
-                    border: 'none',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-mid)'; e.currentTarget.style.color = 'var(--primary)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--surface-low)'; e.currentTarget.style.color = 'var(--text-muted)' }}
+                  className="flex gap-3 mb-6"
                 >
-                  Copy card to clipboard
-                </motion.button>
+                  <button
+                    onClick={copyCard}
+                    className="flex-1 py-3 rounded-2xl font-semibold text-sm transition-colors"
+                    style={{ background: 'var(--surface-low)', color: 'var(--text-muted)', border: 'none' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-mid)'; e.currentTarget.style.color = 'var(--primary)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--surface-low)'; e.currentTarget.style.color = 'var(--text-muted)' }}
+                  >
+                    Copy card
+                  </button>
+                  <button
+                    onClick={handleNextCard}
+                    className="flex-1 py-3 rounded-2xl font-semibold text-sm transition-colors"
+                    style={{ background: 'var(--primary-container)', color: 'var(--primary)', border: 'none' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary)'; e.currentTarget.style.color = 'var(--on-primary)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--primary-container)'; e.currentTarget.style.color = 'var(--primary)' }}
+                  >
+                    Next Card
+                  </button>
+                </motion.div>
               )}
             </motion.div>
 

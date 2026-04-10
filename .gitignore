@@ -4,3 +4,4 @@ dist/
 *.apkg
 public/cards.json
 .vercel
+.env*.local

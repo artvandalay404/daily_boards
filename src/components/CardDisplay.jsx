@@ -1,13 +1,20 @@
+import { useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-function sanitizeCardHtml(html, isQuestion) {
-  if (isQuestion) {
-    return html.replace(/\{\{c\d+::.*?(?::.*?)?\}\}/g, '(?)')
-  }
-  return html.replace(
-    /\{\{c\d+::(.*?)(?::.*?)?\}\}/g,
-    '<span class="font-bold" style="color: var(--primary)">$1</span>'
-  )
+const CLOZE_RE = /\{\{c\d+::(.*?)(?:::.*?)?\}\}/g
+
+function sanitizeCardHtml(html, isQuestion, hiddenIdx) {
+  let i = 0
+  return html.replace(CLOZE_RE, (_, answer) => {
+    const isHidden = i++ === hiddenIdx
+    if (isQuestion) {
+      return isHidden ? '(?)' : answer
+    }
+    // revealed: highlight only the one that was hidden
+    return isHidden
+      ? `<span class="font-bold" style="color: var(--primary)">${answer}</span>`
+      : answer
+  })
 }
 
 function SectionLabel({ children, color }) {
@@ -27,6 +34,12 @@ function SectionLabel({ children, color }) {
 }
 
 export default function CardDisplay({ card, revealed }) {
+  const hiddenIdx = useMemo(() => {
+    const matches = [...card.front.matchAll(CLOZE_RE)]
+    if (matches.length === 0) return 0
+    return Math.floor(Math.random() * matches.length)
+  }, [card.id])
+
   return (
     <div className="rounded-3xl overflow-hidden mb-4" style={{ background: 'var(--surface-low)' }}>
       {/* Top accent bar */}
@@ -41,7 +54,7 @@ export default function CardDisplay({ card, revealed }) {
         <div
           className="card-content text-base leading-relaxed overflow-x-auto"
           style={{ color: 'var(--text)', fontFamily: 'Work Sans, sans-serif' }}
-          dangerouslySetInnerHTML={{ __html: sanitizeCardHtml(card.front, !revealed) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeCardHtml(card.front, !revealed, hiddenIdx) }}
         />
       </div>
 
@@ -62,7 +75,7 @@ export default function CardDisplay({ card, revealed }) {
                 fontFamily: 'Work Sans, sans-serif',
                 borderTop: '1px solid var(--surface-mid)',
               }}
-              dangerouslySetInnerHTML={{ __html: sanitizeCardHtml(card.back, false) }}
+              dangerouslySetInnerHTML={{ __html: sanitizeCardHtml(card.back, false, hiddenIdx) }}
             />
           </motion.div>
         )}
