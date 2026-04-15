@@ -7,9 +7,11 @@ import CardDisplay from './components/CardDisplay'
 import RevealButton from './components/RevealButton'
 import PlantDisplay from './components/PlantDisplay'
 import FunFacts from './components/FunFacts'
+import HistoryPanel from './components/HistoryPanel'
 import { useDailyCard } from './hooks/useDailyCard'
 import { useStreak } from './hooks/useStreak'
 import { useFunFacts } from './hooks/useFunFacts'
+import { useHistory } from './hooks/useHistory'
 import { fetchClue } from './utils/anthropic'
 
 const THEMES = [
@@ -59,6 +61,8 @@ export default function App() {
   const streak = useStreak()
   const { text: factsText, loading: factsLoading, error: factsError, fetch: fetchFacts, reset: resetFacts } = useFunFacts()
   const [factsOpen, setFactsOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const history = useHistory()
   const [debugStreak, setDebugStreak] = useState(null)
   const displayStreak = import.meta.env.DEV && debugStreak !== null ? debugStreak : streak
   const [revealed, setRevealed] = useState(false)
@@ -106,6 +110,11 @@ export default function App() {
     }
   }
 
+  function openHistory() {
+    setHistoryOpen(true)
+    history.fetchHistory()
+  }
+
   function handleReveal() {
     setRevealed(true)
     if (confettiEnabled) {
@@ -116,6 +125,14 @@ export default function App() {
         colors: CONFETTI_COLORS[theme],
       })
     }
+    fetch('/api/completion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: card.id, front: card.front, back: card.back, tags: card.tags ?? [] }),
+    })
+      .then(r => r.json())
+      .then(() => { if (historyOpen) history.refetch() })
+      .catch(() => {})
   }
 
   async function handleClue() {
@@ -157,8 +174,17 @@ export default function App() {
          style={{ background: 'var(--bg)' }}>
       <div className="max-w-5xl mx-auto">
 
-        {/* Theme switcher + confetti toggle */}
-        <div className="flex justify-end items-center gap-3 mb-6">
+        {/* Header row: history (left) + theme/confetti (right) */}
+        <div className="flex justify-between items-center mb-6">
+          <button
+            onClick={openHistory}
+            title="View history"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-base transition-all duration-200"
+            style={{ background: 'var(--surface-low)', fontSize: '1rem' }}
+          >
+            📋
+          </button>
+          <div className="flex items-center gap-3">
           <button
             onClick={() => {
               const next = !confettiEnabled
@@ -193,6 +219,7 @@ export default function App() {
                 {t.icon}
               </button>
             ))}
+          </div>
           </div>
         </div>
 
@@ -356,6 +383,17 @@ export default function App() {
           you got this :)) -sn
         </p>
       </div>
+
+      <HistoryPanel
+        isOpen={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        query={history.query}
+        setQuery={history.setQuery}
+        grouped={history.grouped}
+        loading={history.loading}
+        error={history.error}
+        totalCount={history.completions.length}
+      />
     </div>
   )
 }
