@@ -19,8 +19,8 @@ export default async function handler(req) {
     if (!res.ok) throw new Error('cards.json not found')
     const cards = await res.json()
 
-    const today = new Date().toISOString().slice(0, 10)
-    const index = (fnv1a(today) + offset) % cards.length
+    const seed = parseInt(url.searchParams.get('seed') || '0', 10)
+    const index = fnv1a(`${seed}-${offset}`) % cards.length
     const card = cards[index]
 
     return new Response(JSON.stringify({ card }), {

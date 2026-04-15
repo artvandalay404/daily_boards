@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export function useDailyCard(offset = 0) {
+  const seedRef = useRef(Math.floor(Math.random() * 1_000_000))
   const [card, setCard] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     setLoading(true)
-    fetch(`/api/card?offset=${offset}`)
+    fetch(`/api/card?seed=${seedRef.current}&offset=${offset}`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed to load card')
         return res.json()

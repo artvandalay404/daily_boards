@@ -64,6 +64,9 @@ export default function App() {
   const [revealed, setRevealed] = useState(false)
   const [clue, setClue] = useState(null)
   const [clueLoading, setClueLoading] = useState(false)
+  const [confettiEnabled, setConfettiEnabled] = useState(() =>
+    localStorage.getItem('confetti') !== 'off'
+  )
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('theme')
     if (saved) return saved
@@ -86,6 +89,14 @@ export default function App() {
     resetFacts()
   }
 
+  function handlePrevCard() {
+    setCardOffset(o => Math.max(0, o - 1))
+    setRevealed(false)
+    setClue(null)
+    setFactsOpen(false)
+    resetFacts()
+  }
+
   function handleToggleFacts() {
     if (!factsOpen) {
       setFactsOpen(true)
@@ -97,12 +108,14 @@ export default function App() {
 
   function handleReveal() {
     setRevealed(true)
-    confetti({
-      particleCount: 110,
-      spread: 75,
-      origin: { y: 0.6 },
-      colors: CONFETTI_COLORS[theme],
-    })
+    if (confettiEnabled) {
+      confetti({
+        particleCount: 110,
+        spread: 75,
+        origin: { y: 0.6 },
+        colors: CONFETTI_COLORS[theme],
+      })
+    }
   }
 
   async function handleClue() {
@@ -144,8 +157,24 @@ export default function App() {
          style={{ background: 'var(--bg)' }}>
       <div className="max-w-5xl mx-auto">
 
-        {/* Theme switcher */}
+        {/* Theme switcher + confetti toggle */}
         <div className="flex justify-end items-center gap-3 mb-6">
+          <button
+            onClick={() => {
+              const next = !confettiEnabled
+              setConfettiEnabled(next)
+              localStorage.setItem('confetti', next ? 'on' : 'off')
+            }}
+            title={confettiEnabled ? 'Disable confetti' : 'Enable confetti'}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-base transition-all duration-200"
+            style={{
+              background: 'var(--surface-low)',
+              opacity: confettiEnabled ? 1 : 0.4,
+              fontSize: '1rem',
+            }}
+          >
+            🎉
+          </button>
           <div className="flex items-center gap-1 rounded-full px-2 py-1.5"
                style={{ background: 'var(--surface-low)' }}>
             {THEMES.map((t) => (
@@ -175,11 +204,22 @@ export default function App() {
 
           {/* Left: card + Claude's thoughts */}
           <div className="flex-1 min-w-0">
-            {cardOffset > 0 && (
-              <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-faint)', fontFamily: 'Work Sans, sans-serif' }}>
-                Card {cardOffset + 1} today
-              </p>
-            )}
+            <div className="flex items-center justify-between mb-2">
+              {cardOffset > 0 ? (
+                <button
+                  onClick={handlePrevCard}
+                  className="text-xs font-semibold"
+                  style={{ color: 'var(--text-faint)', fontFamily: 'Work Sans, sans-serif', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >
+                  ← previous
+                </button>
+              ) : <span />}
+              {cardOffset > 0 && (
+                <p className="text-xs font-semibold" style={{ color: 'var(--text-faint)', fontFamily: 'Work Sans, sans-serif' }}>
+                  Card {cardOffset + 1}
+                </p>
+              )}
+            </div>
             <motion.div
               key={cardOffset}
               initial={{ opacity: 0, y: 20 }}
